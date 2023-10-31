@@ -1,5 +1,6 @@
 package org.schabi.newpipe.info_list.holder;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,9 +19,14 @@ import org.schabi.newpipe.util.DependentPreferenceHelper;
 import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.image.PicassoHelper;
 import org.schabi.newpipe.util.StreamTypeUtil;
+import org.schabi.newpipe.util.text.Translator;
 import org.schabi.newpipe.views.AnimatedProgressBar;
 
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class StreamMiniInfoItemHolder extends InfoItemHolder {
     public final ImageView itemThumbnailView;
@@ -52,7 +58,17 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
         }
         final StreamInfoItem item = (StreamInfoItem) infoItem;
 
-        itemVideoTitleView.setText(item.getName());
+//        itemVideoTitleView.setText(item.getName());
+//        itemVideoTitleView.setText(Translator.translate(item.getName(), "itemVideoTitle"));
+        Single.fromCallable(() -> Translator.translate(item.getName(), "itemVideoTitle"))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(translatedText -> {
+                    itemVideoTitleView.setText(translatedText);
+                }, throwable -> {
+                    // Handle the error here
+                    Log.e("UpdateFromItem", "Translation error", throwable);
+                });
         itemUploaderView.setText(item.getUploaderName());
 
         if (item.getDuration() > 0) {
