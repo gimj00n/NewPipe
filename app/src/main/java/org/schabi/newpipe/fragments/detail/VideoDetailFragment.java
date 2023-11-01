@@ -1340,16 +1340,16 @@ public final class VideoDetailFragment
         this.url = newUrl;
         this.title = newTitle;
 //        this.title = "Joon is awesome!";
-        Single.fromCallable(() -> Translator.translateText(newTitle, "PlayTitle",
-                        "auto", "ko"))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(translatedText -> {
-                    this.title = translatedText;
-                }, throwable -> {
-                    // Handle the error here
-                    Log.e("CommentsMini", "Translation error", throwable);
-                });
+//        Single.fromCallable(() -> Translator.translateText(newTitle, "PlayTitle",
+//                        "auto", "ko"))
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(translatedText -> {
+//                    this.title = translatedText;
+//                }, throwable -> {
+//                    // Handle the error here
+//                    Log.e("VideoDetail", "Translation error", throwable);
+//                });
         this.playQueue = newPlayQueue;
     }
 
@@ -1454,6 +1454,18 @@ public final class VideoDetailFragment
         binding.positionView.setVisibility(View.GONE);
 
         binding.detailVideoTitleView.setText(title);
+        final String tgtLang =
+                Localization.getAppLocale(binding.detailVideoTitleView.getContext()).toString();
+        Single.fromCallable(() -> Translator.translateText(title, "PlayTitle",
+                        "auto", tgtLang))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(translatedText -> {
+                    binding.detailVideoTitleView.setText(translatedText);
+                }, throwable -> {
+                    // Handle the error here
+                    Log.e("VideoDetail", "Translation error", throwable);
+                });
         binding.detailVideoTitleView.setMaxLines(1);
         animate(binding.detailVideoTitleView, true, 0);
 
@@ -1486,6 +1498,18 @@ public final class VideoDetailFragment
 
         animate(binding.detailThumbnailPlayButton, true, 200);
         binding.detailVideoTitleView.setText(title);
+        final String tgtLang =
+                Localization.getAppLocale(binding.detailVideoTitleView.getContext()).toString();
+        Single.fromCallable(() -> Translator.translateText(title, "PlayTitle",
+                        "auto", tgtLang))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(translatedText -> {
+                    binding.detailVideoTitleView.setText(translatedText);
+                }, throwable -> {
+                    // Handle the error here
+                    Log.e("VideoDetail", "Translation error", throwable);
+                });
 
         binding.detailSubChannelThumbnailView.setVisibility(View.GONE);
 

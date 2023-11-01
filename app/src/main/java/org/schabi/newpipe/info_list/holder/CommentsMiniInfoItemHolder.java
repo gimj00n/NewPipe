@@ -36,14 +36,10 @@ import org.schabi.newpipe.util.image.PicassoHelper;
 import org.schabi.newpipe.util.external_communication.ShareUtils;
 import org.schabi.newpipe.util.text.CommentTextOnTouchListener;
 import org.schabi.newpipe.util.text.TextLinkifier;
-import org.schabi.newpipe.util.text.Translator;
 
 import java.util.function.Consumer;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class CommentsMiniInfoItemHolder extends InfoItemHolder {
     private static final String TAG = "CommentsMiniIIHolder";
@@ -128,16 +124,16 @@ public class CommentsMiniInfoItemHolder extends InfoItemHolder {
         commentText = item.getCommentText();
 //        commentText = new Description("joon awesome", 3);
         final String tgtLang = Localization.getAppLocale(itemThumbnailView.getContext()).toString();
-        Single.fromCallable(() -> Translator.translateText(commentText.getContent(), "Comments",
-                        "auto", tgtLang))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(translatedText -> {
-                    commentText = new Description(translatedText, 3);
-                }, throwable -> {
-                    // Handle the error here
-                    Log.e("CommentsMini", "Translation error", throwable);
-                });
+//        Single.fromCallable(() -> Translator.translateText(commentText.getContent(), "Comments",
+//                        "auto", tgtLang))
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(translatedText -> {
+//                    commentText = new Description(translatedText, 3);
+//                }, throwable -> {
+//                    // Handle the error here
+//                    Log.e("CommentsMini", "Translation error", throwable);
+//                });
 
         ellipsize();
 
