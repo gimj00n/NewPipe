@@ -117,6 +117,7 @@ import org.schabi.newpipe.util.ThemeHelper;
 import org.schabi.newpipe.util.external_communication.KoreUtils;
 import org.schabi.newpipe.util.external_communication.ShareUtils;
 import org.schabi.newpipe.util.PlayButtonHelper;
+import org.schabi.newpipe.util.text.Translator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -129,6 +130,7 @@ import java.util.function.Consumer;
 
 import icepick.State;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -1337,6 +1339,16 @@ public final class VideoDetailFragment
         this.serviceId = newServiceId;
         this.url = newUrl;
         this.title = newTitle;
+        Single.fromCallable(() -> Translator.translateText(newTitle, "PlayTitle",
+                        "auto", "ko"))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(translatedText -> {
+                    this.title = translatedText;
+                }, throwable -> {
+                    // Handle the error here
+                    Log.e("CommentsMini", "Translation error", throwable);
+                });
         this.playQueue = newPlayQueue;
     }
 

@@ -1,5 +1,8 @@
 package org.schabi.newpipe.info_list.holder;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+
+import com.squareup.picasso.Callback;
 
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.stream.model.StreamStateEntity;
@@ -22,11 +27,14 @@ import org.schabi.newpipe.util.StreamTypeUtil;
 import org.schabi.newpipe.util.text.Translator;
 import org.schabi.newpipe.views.AnimatedProgressBar;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+
 
 public class StreamMiniInfoItemHolder extends InfoItemHolder {
     public final ImageView itemThumbnailView;
@@ -60,14 +68,39 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
 
 //        itemVideoTitleView.setText(item.getName());
 //        itemVideoTitleView.setText(Translator.translate(item.getName(), "itemVideoTitle"));
-        Single.fromCallable(() -> Translator.translate(item.getName(), "itemVideoTitle"))
+        itemVideoTitleView.setText(item.getName());
+//        if (true) {
+////            Translator.translate(itemVideoTitleView, "StreamItem");
+//            Single.fromCallable(() -> Translator.translateText(itemVideoTitleView, "itemTitle"))
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(translatedText -> {
+//                        itemVideoTitleView.setText(translatedText);
+//                    }, throwable -> {
+//                        // Handle the error here
+////                        Log.e("UpdateFromItem", "Translation error", throwable);
+//                        itemVideoTitleView.setText(item.getName());
+//                    });
+//        }
+//        Single.fromCallable(() -> Translator.translate(item.getName(), "itemTitle"))
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(translatedText -> {
+//                    itemVideoTitleView.setText(translatedText);
+//                }, throwable -> {
+//                    // Handle the error here
+////                        Log.e("UpdateFromItem", "Translation error", throwable);
+//                    itemVideoTitleView.setText(item.getName());
+//                });
+        Single.fromCallable(() -> Translator.translateText(itemVideoTitleView, "itemTitle"))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(translatedText -> {
                     itemVideoTitleView.setText(translatedText);
                 }, throwable -> {
                     // Handle the error here
-                    Log.e("UpdateFromItem", "Translation error", throwable);
+//                        Log.e("UpdateFromItem", "Translation error", throwable);
+                    itemVideoTitleView.setText(item.getName());
                 });
         itemUploaderView.setText(item.getUploaderName());
 
@@ -102,8 +135,45 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
             itemProgressView.setVisibility(View.GONE);
         }
 
+        final Callback callback;
+        if (false) {
+            callback = null;
+        } else {
+            callback = new Callback() {
+                @Override
+                public void onSuccess() {
+//                    Single.fromCallable(() -> Translator.translate(item.getName(), "itemTitle"))
+//                            .subscribeOn(Schedulers.io())
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe(translatedText -> {
+//                                itemVideoTitleView.setText(translatedText);
+//                            }, throwable -> {
+//                                // Handle the error here
+////                        Log.e("UpdateFromItem", "Translation error", throwable);
+//                                itemVideoTitleView.setText(item.getName());
+//                            });
+                    try {
+                        Translator.translate(itemThumbnailView);
+//                        saveImageViewToPNG(itemThumbnailView, itemThumbnailView.getContext(),
+//                                "output.png");
+                    } catch (final IllegalArgumentException e) {
+                        e.printStackTrace();
+                        // Handle error (e.g., ImageView does not contain a BitmapDrawable)
+                    } catch (final Exception e) {
+                        e.printStackTrace();
+                        // Handle error
+                    }
+                    Log.d("Callback", item.getName() + " is back");
+                }
+
+                @Override
+                public void onError(final Exception e) {
+
+                }
+            };
+        }
         // Default thumbnail is shown on error, while loading and if the url is empty
-        PicassoHelper.loadThumbnail(item.getThumbnails()).into(itemThumbnailView);
+        PicassoHelper.loadThumbnail(item.getThumbnails()).into(itemThumbnailView, callback);
 
         itemView.setOnClickListener(view -> {
             if (itemBuilder.getOnStreamSelectedListener() != null) {
@@ -167,5 +237,31 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
     private void disableLongClick() {
         itemView.setLongClickable(false);
         itemView.setOnLongClickListener(null);
+    }
+
+    /**
+     * Saves the image from an ImageView to a PNG file.
+     *
+     * @param imageView the source ImageView
+     * @param context   the application context
+     * @param filename  the name of the file to save the image to
+     * @throws IOException if there's an error during saving
+     */
+    private static void saveImageViewToPNG(final ImageView imageView,
+                                           final Context context,
+                                           final String filename)
+            throws IOException {
+        // Check if the ImageView contains a BitmapDrawable
+        if (imageView.getDrawable() instanceof BitmapDrawable) {
+            final BitmapDrawable bitmapDrawable = (BitmapDrawable) imageView.getDrawable();
+            final Bitmap bitmap = bitmapDrawable.getBitmap();
+
+            // Open a file output stream to save the image
+            try (FileOutputStream fos = context.openFileOutput(filename, Context.MODE_PRIVATE)) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            }
+        } else {
+            throw new IllegalArgumentException("ImageView does not contain a BitmapDrawable");
+        }
     }
 }
