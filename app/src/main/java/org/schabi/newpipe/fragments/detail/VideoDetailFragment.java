@@ -1338,8 +1338,8 @@ public final class VideoDetailFragment
                                   @Nullable final PlayQueue newPlayQueue) {
         this.serviceId = newServiceId;
         this.url = newUrl;
-        //this.title = newTitle;
-        this.title = "Hello";
+        this.title = newTitle;
+//        this.title = "Hello";
 //        this.title = "Joon is awesome!";
 //        Single.fromCallable(() -> Translator.translateText(newTitle, "PlayTitle",
 //                        "auto", "ko"))

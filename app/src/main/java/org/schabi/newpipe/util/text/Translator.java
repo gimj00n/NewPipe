@@ -229,8 +229,6 @@ public final class Translator {
         encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
 
         final Map<String, String> requestHeaders = new HashMap<>();
-//        requestHeaders.put("X-Naver-Client-Id", CLIENT_ID);
-//        requestHeaders.put("X-Naver-Client-Secret", CLIENT_SECRET);
         requestHeaders.put("X-NCP-APIGW-API-KEY-ID", PAPAGO_CLIENT_ID);
         requestHeaders.put("X-NCP-APIGW-API-KEY", PAPAGO_CLIENT_SECRET);
 
